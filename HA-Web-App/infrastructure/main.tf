@@ -7,14 +7,14 @@ terraform {
   }
    required_version = ">= 1.2.0"
 
-   backend "s3" {
-    bucket = "kodecapsule-state"
-    key = "global/s3/terraform.tfstate"
-    region = "us-east-1"
-    dynamodb_table = "state-lock-table"
-    encrypt = true
+#    backend "s3" {
+#     bucket = "kodecapsule-state"
+#     key = "global/s3/terraform.tfstate"
+#     region = "us-east-1"
+#     dynamodb_table = "state-lock-table"
+#     encrypt = true
      
-   }
+#    }
 }
 
 
@@ -23,12 +23,13 @@ provider "aws" {
 }
 
 
+# ======================== CONFIGURE REMOTE BACKEND =========================
 
 resource "aws_s3_bucket" "state-bucket" {
     bucket = "kodecapsule-state"
-    lifecycle {
-      prevent_destroy = true
-    }     
+    # lifecycle {
+    #   prevent_destroy = true
+    # }     
 }
 
 resource "aws_s3_bucket_versioning" "state-version" {
@@ -71,4 +72,25 @@ resource "aws_dynamodb_table" "terrafor-state-lock" {
     name = "LockID"
     type = "S"
   }
+}
+
+
+# ======================== CONFIGURE VPC =========================
+
+module "kodecapsule-vpc" {
+  source = "./modules/VPC"
+  
+}
+
+module "kodecapsule-webserve" {
+  source = "./modules/compute"
+  subnet-id = module.kodecapsule-vpc.public-subnet-id
+  assign-public-ip = true
+  
+}
+
+
+module "kodecapsule-webserve-1" {
+  source = "./modules/compute"
+  subnet-id = module.kodecapsule-vpc.private-subnet-id  
 }
