@@ -7,14 +7,14 @@ terraform {
   }
    required_version = ">= 1.2.0"
 
-#    backend "s3" {
-#     bucket = "kodecapsule-state"
-#     key = "global/s3/terraform.tfstate"
-#     region = "us-east-1"
-#     dynamodb_table = "state-lock-table"
-#     encrypt = true
+  #  backend "s3" {
+  #   bucket = "kodecapsule-state"
+  #   key = "global/s3/terraform.tfstate"
+  #   region = "us-east-1"
+  #   dynamodb_table = "state-lock-table"
+  #   encrypt = true
      
-#    }
+  #  }
 }
 
 
