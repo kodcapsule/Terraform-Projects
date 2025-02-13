@@ -39,7 +39,6 @@ resource "aws_subnet" "private-subnets" {
   vpc_id = aws_vpc.main-vpc.id
   cidr_block = var.private-cidr-blocks[count.index]
   availability_zone = element(var.availability-zones,count.index)
-
   tags = {
     name= "${var.project-name}-private-subnet-${count.index}"
   }
@@ -53,7 +52,13 @@ resource "aws_route_table" "public-rt" {
       name ="${var.project-name}-public-rt"
     }
   }
-
+resource "aws_route_table" "private-rt" {
+  vpc_id = aws_vpc.main-vpc.id
+  tags = {
+      name ="${var.project-name}-private-rt"
+    }
+  
+}
 
 resource "aws_route" "public-internet-route" {
    route_table_id = aws_route_table.public-rt.id
@@ -64,7 +69,29 @@ resource "aws_route" "public-internet-route" {
 }
 
 resource "aws_route_table_association" "public" {
-  count = length(var.private-cidr-blocks)
+  count = length(var.public-cidr-blocks)
   subnet_id = aws_subnet.public-subnets[count.index].id
   route_table_id = aws_route_table.public-rt.id
   }
+
+resource "aws_route_table_association" "private" {
+  count = length(var.private-cidr-blocks)
+  subnet_id = aws_subnet.private-subnets[count.index].id
+  route_table_id = aws_route_table.private-rt.id
+  
+}
+
+resource "aws_nat_gateway" "nat" {
+  subnet_id = aws_subnet.public-subnets[0].id
+
+  tags = {
+      name ="${var.project-name}-nat-gtw"
+    }
+}
+
+resource "aws_route" "nat-rt" {
+  route_table_id = aws_route_table.private-rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.nat.id
+  
+}
