@@ -22,7 +22,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 
-# ====== Public resources ============================
+# ====== Public (Web tier )resources ============================
 
 resource "aws_subnet" "public-subnets" {
   count = length(var.public-cidr-blocks)
@@ -95,7 +95,7 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_nat_gateway" "nat" {
   subnet_id = aws_subnet.public-subnets[0].id
-
+ allocation_id = aws_eip.nat-eip.id
   tags = {
       name ="${var.project-name}-nat-gtw"
     }

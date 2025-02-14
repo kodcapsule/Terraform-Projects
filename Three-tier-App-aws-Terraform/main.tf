@@ -4,9 +4,9 @@
 
 resource "aws_s3_bucket" "state-bucket" {
     bucket = "kodecapsule-state"
-    # lifecycle {
-    #   prevent_destroy = true
-    # }     
+    lifecycle {
+      prevent_destroy = true
+    }     
 }
 
 resource "aws_s3_bucket_versioning" "state-version" {
@@ -52,3 +52,14 @@ resource "aws_dynamodb_table" "terrafor-state-lock" {
 }
 
 
+# ====
+
+module "kodecapsule-vpc" {
+  source = "./modules/networking"
+  project-name = "kodecapsule-3-tier-app"
+  vpc-cidr-block = "10.0.0.0/16"
+  public-cidr-blocks = ""
+  private-cidr-blocks = ""
+  availability-zones = ""
+  
+}
